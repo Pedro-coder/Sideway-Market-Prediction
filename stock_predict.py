@@ -1,36 +1,60 @@
-import quandl
+
+# Make sure that you have all these libaries available to run the code successfully
+from pandas_datareader import data
+import matplotlib.pyplot as plt
 import pandas as pd
+import datetime as dt
+import urllib.request, json
+import os
 import numpy as np
-import datetime
+import tensorflow as tf # This code has been tested with TensorFlow 1.6
+from sklearn.preprocessing import MinMaxScaler
 
-from sklearn.linear_model import LinearRegression
-from sklearn import preprocessing, svm, model_selection
-from sklearn.model_selection import cross_validate
 
-print("ok")
+data_source = 'alphavantage' # alphavantage or kaggle
 
-df = quandl.get("WIKI/AMZN")
-print(df.tail())
+if data_source == 'alphavantage':
+    # ====================== Loading Data from Alpha Vantage ==================================
 
-df = df[['Adj. Close']]
-forecast_out = int(30) # predicting 30 days into future
-df['Prediction'] = df[['Adj. Close']].shift(-forecast_out) #  label column with data shifted 30 units up
+    api_key = '8AIKEJC5LK2RQVS2'
 
-X = np.array(df.drop(['Prediction'], 1))
-X = preprocessing.scale(X)
+    # American Airlines stock market prices
+    ticker = "AAL"
 
-X = np.array(df.drop(['Prediction'], 1))
-X = preprocessing.scale(X)
+    # JSON file with all the stock market data for AAL from the last 20 years
+    url_string = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=%s&outputsize=full&apikey=%s"%(ticker,api_key)
 
-y = np.array(df['Prediction'])
-y = y[:-forecast_out]
+    # Save data to this file
+    file_to_save = 'stock_market_data-%s.csv'%ticker
 
-X_train, X_test, y_train, y_test = model_selection.train_test_split(X, y, test_size = 0.2)
+    # If you haven't already saved data,
+    # Go ahead and grab the data from the url
+    # And store date, low, high, volume, close, open values to a Pandas DataFrame
+    if not os.path.exists(file_to_save):
+        with urllib.request.urlopen(url_string) as url:
+            data = json.loads(url.read().decode())
+            # extract stock market data
+            data = data['Time Series (Daily)']
+            df = pd.DataFrame(columns=['Date','Low','High','Close','Open'])
+            for k,v in data.items():
+                date = dt.datetime.strptime(k, '%Y-%m-%d')
+                data_row = [date.date(),float(v['3. low']),float(v['2. high']),
+                            float(v['4. close']),float(v['1. open'])]
+                df.loc[-1,:] = data_row
+                df.index = df.index + 1
+        print('Data saved to : %s'%file_to_save)        
+        df.to_csv(file_to_save)
 
-# Training
-# clf = LinearRegression()
-# clf.fit(X_train,y_train)
-# # Testing
-# confidence = clf.score(X_test, y_test)
-# print("confidence: ", confidence)
+    # If the data is already there, just load it from the CSV
+    else:
+        print('File already exists. Loading data from CSV')
+        df = pd.read_csv(file_to_save)
+
+else:
+
+    # ====================== Loading Data from Kaggle ==================================
+    # You will be using HP's data. Feel free to experiment with other data.
+    # But while doing so, be careful to have a large enough dataset and also pay attention to the data normalization
+    # df = pd.read_csv(os.path.join('Stocks','hpq.us.txt'),delimiter=',',usecols=['Date','Open','High','Low','Close'])
+    print('Loaded data from the Kaggle repository')
 
