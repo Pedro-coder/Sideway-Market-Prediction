@@ -80,3 +80,19 @@ high_prices = df.loc[:,'High'].as_matrix()
 low_prices = df.loc[:,'Low'].as_matrix()
 mid_prices = (high_prices+low_prices)/2.0
 
+train_data = mid_prices[:11000]
+test_data = mid_prices[11000:]
+
+
+# Scale the data to be between 0 and 1
+# When scaling remember! You normalize both test and train data with respect to training data
+# Because you are not supposed to have access to test data
+scaler = MinMaxScaler()
+train_data = train_data.reshape(-1,1)
+test_data = test_data.reshape(-1,1)
+
+
+
+
+
+
