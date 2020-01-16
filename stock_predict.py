@@ -8,6 +8,7 @@ import urllib.request, json
 import os
 import numpy as np
 import tensorflow as tf # This code has been tested with TensorFlow 1.6
+from tensorflow.python.framework import ops
 from sklearn.preprocessing import MinMaxScaler
 
 
@@ -248,7 +249,7 @@ n_layers = len(num_nodes) # number of layers
 dropout = 0.2 # dropout amount
 
 
-tf.reset_default_graph() # This is important in case you run this multiple times
+ops.reset_default_graph() # This is important in case you run this multiple times
 
 # # Input data.
 # train_inputs, train_outputs = [],[]
