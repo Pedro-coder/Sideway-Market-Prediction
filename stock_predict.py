@@ -521,3 +521,4 @@ plt.xlabel('Date',fontsize=18)
 plt.ylabel('Mid Price',fontsize=18)
 plt.xlim(11000,12500)
 plt.show()
+
