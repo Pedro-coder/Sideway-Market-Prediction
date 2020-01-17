@@ -507,6 +507,8 @@ plt.xlabel('Date',fontsize=18)
 plt.ylabel('Mid Price',fontsize=18)
 plt.xlim(11000,12500)
 
+
+
 plt.subplot(2,1,2)
 
 # Predicting the best test prediction you got
